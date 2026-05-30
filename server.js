@@ -2,6 +2,8 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'production'
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
+console.log('MONGO_URI:', process.env.MONGO_URI ? 'OK' : 'MANQUANT')
+console.log('PORT:', process.env.PORT)
 
 const express = require('express')
 const mongoose = require('mongoose')
