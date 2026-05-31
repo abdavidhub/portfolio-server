@@ -1,23 +1,27 @@
 const express = require('express')
 const router = express.Router()
 const multer = require('multer')
-const path = require('path')
 const cloudinary = require('cloudinary').v2
 const { CloudinaryStorage } = require('multer-storage-cloudinary')
-const Project = require('../models/Projet')
+const Project = require('../models/Project')
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-})
+const getUpload = () => {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_KEY,
+    api_secret: process.env.CLOUDINARY_SECRET
+  })
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  folder: 'projects',
-  allowedFormats: ['jpg', 'png', 'gif', 'jpeg', 'webp']
-})
-const upload = multer({ storage })
+  const storage = new CloudinaryStorage({
+    cloudinary,
+    params: {
+      folder: 'portfolio',
+      allowed_formats: ['jpg', 'jpeg', 'png', 'webp']
+    }
+  })
+
+  return multer({ storage })
+}
 
 router.get('/', async (req, res) => {
   try {
@@ -28,19 +32,27 @@ router.get('/', async (req, res) => {
   }
 })
 
-router.post('/', upload.single('image'), async (req, res) => {
-  try {
-     const data = {
-      ...req.body,
-      technologies: req.body.technologies.split(',').map(t => t.trim()),
-      image: req.file ? req.file.path : ''
+router.post('/', (req, res) => {
+  const upload = getUpload()
+  upload.single('image')(req, res, async (err) => {
+    if (err) {
+      console.error('Multer error:', err)
+      return res.status(500).json({ message: 'Erreur upload' })
     }
-    const projet = new Project(data)
-    const sauvegarde = await projet.save()
-    res.status(201).json(sauvegarde)
-  } catch (err) {
-    res.status(400).json({ message: 'Données invalides' })
-  }
+    try {
+      const data = {
+        ...req.body,
+        technologies: req.body.technologies.split(',').map(t => t.trim()),
+        image: req.file ? req.file.path : ''
+      }
+      const projet = new Project(data)
+      const sauvegarde = await projet.save()
+      res.status(201).json(sauvegarde)
+    } catch (err) {
+      console.error('DB error:', err)
+      res.status(400).json({ message: 'Données invalides' })
+    }
+  })
 })
 
 router.delete('/:id', async (req, res) => {
