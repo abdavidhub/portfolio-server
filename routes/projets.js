@@ -2,11 +2,20 @@ const express = require('express')
 const router = express.Router()
 const multer = require('multer')
 const path = require('path')
+const cloudinary = require('cloudinary').v2
+const { CloudinaryStorage } = require('multer-storage-cloudinary')
 const Project = require('../models/Projet')
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+})
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  folder: 'projects',
+  allowedFormats: ['jpg', 'png', 'gif', 'jpeg', 'webp']
 })
 const upload = multer({ storage })
 
@@ -24,7 +33,7 @@ router.post('/', upload.single('image'), async (req, res) => {
      const data = {
       ...req.body,
       technologies: req.body.technologies.split(',').map(t => t.trim()),
-      image: req.file ? `/uploads/${req.file.filename}` : ''
+      image: req.file ? req.file.path : ''
     }
     const projet = new Project(data)
     const sauvegarde = await projet.save()
