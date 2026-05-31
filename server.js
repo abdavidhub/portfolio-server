@@ -4,9 +4,9 @@ if (process.env.NODE_ENV !== 'production') {
 }
 console.log('MONGO_URI:', process.env.MONGO_URI ? 'OK' : 'MANQUANT')
 console.log('PORT:', process.env.PORT)
-console.log('CLOUDINARY_NAME:', process.env.CLOUDINARY_CLOUD_NAME ? 'OK' : 'MANQUANT')
-console.log('CLOUDINARY_KEY:', process.env.CLOUDINARY_API_KEY ? 'OK' : 'MANQUANT')
-console.log('CLOUDINARY_SECRET:', process.env.CLOUDINARY_API_SECRET ? 'OK' : 'MANQUANT')
+console.log('CLOUDINARY_NAME:', process.env.CLOUDINARY_NAME ? 'OK' : 'MANQUANT')
+console.log('CLOUDINARY_KEY:', process.env.CLOUDINARY_KEY ? 'OK' : 'MANQUANT')
+console.log('CLOUDINARY_SECRET:', process.env.CLOUDINARY_SECRET ? 'OK' : 'MANQUANT')
 
 const express = require('express')
 const mongoose = require('mongoose')
